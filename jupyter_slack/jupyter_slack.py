@@ -6,10 +6,17 @@ import traceback
 from IPython.core import magic_arguments
 from IPython.core.magics import ExecutionMagics
 from IPython.core.magic import cell_magic, magics_class
-
+from os.path import expanduser
 
 def notify_self(message):
-    slack_webhook_url = os.getenv("SLACK_WEBHOOK_URL")
+   
+    #A file called ~/.slack_webhook_jupyterhub is in every user's home folder
+    #where the slack webhook is stored. 
+    homedir = expanduser("~")
+    f = open(homedir + "/.slack_webhook_jupyterhub",'r')
+    slack_webhook_url = f.readlines()
+    slack_webhook_url = slack_webhook_url[0].replace("\n","")
+    
     if slack_webhook_url is not None:
         r = requests.post(slack_webhook_url, json={"text": message})
         return r.text, message
